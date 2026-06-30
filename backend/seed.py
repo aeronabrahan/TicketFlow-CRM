@@ -1,151 +1,71 @@
-from sqlmodel import Session
-from sqlmodel import select
+from random import choice
 
-from app.database.database import engine, create_db_and_tables
-from app.models.user import User
+from faker import Faker
+from sqlmodel import Session
+
+from app.database.database import engine
 from app.models.ticket import Ticket
 
-from app.core.security import hash_password
+fake = Faker()
 
-from app.enums.status import TicketStatus
-from app.enums.priority import Priority
-from app.enums.category import Category
+statuses = [
+    "Open",
+    "Pending",
+    "Closed"
+]
 
+priorities = [
+    "Low",
+    "Medium",
+    "High"
+]
 
-def seed_database():
+categories = [
+    "TECHNICAL",
+    "BILLING",
+    "PAYMENT",
+    "DAMAGED_ITEM",
+    "OTHER"
+]
 
-    create_db_and_tables()
+subjects = [
+    "Unable to login",
+    "Password reset",
+    "Valve leak reported",
+    "Invoice inquiry",
+    "Software installation",
+    "Warranty claim",
+    "Account locked",
+    "Purchase request",
+    "Maintenance schedule",
+    "Pressure alarm triggered",
+    "Temperature sensor issue",
+    "Calibration request",
+    "Need quotation",
+    "Delivery delayed",
+    "Network connection issue"
+]
 
-    with Session(engine) as session:
+with Session(engine) as session:
 
-        # Prevent duplicate seeding
-        if session.exec(select(User)).first():
-            print("Database already contains data.")
-            return
+    for _ in range(150):
 
-        # -----------------------
-        # Users
-        # -----------------------
+        ticket = Ticket(
 
-        admin = User(
-            username="admin",
-            email="admin@test.com",
-            hashed_password=hash_password("admin123"),
-            role="Admin"
+            customer=fake.company(),
+
+            subject=choice(subjects),
+
+            category=choice(categories),
+
+            priority=choice(priorities),
+
+            status=choice(statuses),
+
         )
 
-        agent = User(
-            username="agent",
-            email="agent@test.com",
-            hashed_password=hash_password("agent123"),
-            role="Agent"
-        )
+        session.add(ticket)
 
-        manager = User(
-            username="manager",
-            email="manager@test.com",
-            hashed_password=hash_password("manager123"),
-            role="Manager"
-        )
+    session.commit()
 
-        session.add(admin)
-        session.add(agent)
-        session.add(manager)
-
-        # -----------------------
-        # Tickets
-        # -----------------------
-
-        tickets = [
-
-            Ticket(
-                customer="John Doe",
-                subject="Refund Request",
-                category=Category.BILLING,
-                priority=Priority.HIGH,
-                status=TicketStatus.OPEN
-            ),
-
-            Ticket(
-                customer="Maria Santos",
-                subject="Package Lost",
-                category=Category.SHIPPING,
-                priority=Priority.HIGH,
-                status=TicketStatus.PENDING
-            ),
-
-            Ticket(
-                customer="Kevin Cruz",
-                subject="Cannot Login",
-                category=Category.TECHNICAL,
-                priority=Priority.MEDIUM,
-                status=TicketStatus.OPEN
-            ),
-
-            Ticket(
-                customer="Anna Reyes",
-                subject="Wrong Item Delivered",
-                category=Category.SHIPPING,
-                priority=Priority.MEDIUM,
-                status=TicketStatus.CLOSED
-            ),
-
-            Ticket(
-                customer="Paul Garcia",
-                subject="Duplicate Payment",
-                category=Category.BILLING,
-                priority=Priority.HIGH,
-                status=TicketStatus.OPEN
-            ),
-
-            Ticket(
-                customer="Jessica Lim",
-                subject="Need Invoice",
-                category=Category.BILLING,
-                priority=Priority.LOW,
-                status=TicketStatus.CLOSED
-            ),
-
-            Ticket(
-                customer="Michael Tan",
-                subject="Website Error",
-                category=Category.TECHNICAL,
-                priority=Priority.HIGH,
-                status=TicketStatus.OPEN
-            ),
-
-            Ticket(
-                customer="Sophia Lee",
-                subject="Late Delivery",
-                category=Category.SHIPPING,
-                priority=Priority.MEDIUM,
-                status=TicketStatus.PENDING
-            ),
-
-            Ticket(
-                customer="James Wong",
-                subject="Account Locked",
-                category=Category.TECHNICAL,
-                priority=Priority.HIGH,
-                status=TicketStatus.OPEN
-            ),
-
-            Ticket(
-                customer="Nicole Perez",
-                subject="Refund Approved",
-                category=Category.BILLING,
-                priority=Priority.LOW,
-                status=TicketStatus.CLOSED
-            )
-
-        ]
-
-        session.add_all(tickets)
-
-        session.commit()
-
-        print("Database seeded successfully!")
-
-
-if __name__ == "__main__":
-    seed_database()
+print("150 tickets created.")
