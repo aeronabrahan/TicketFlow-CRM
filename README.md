@@ -177,7 +177,7 @@ This separation makes the application easier to maintain, test, and extend.
 Mechanical Engineer transitioning into Backend Development, Data Engineering, and AI-powered applications.
 
 - GitHub: https://github.com/aeronabrahan
-- LinkedIn: https://www.linkedin.com/in/jan-aeron-abrahan/
+- LinkedIn: https://www.linkedin.com/in/jagabrahan/
 
 ---
 
