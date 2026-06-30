@@ -4,6 +4,7 @@ from sqlmodel import Session
 from app.database.database import get_session
 
 from app.schemas.ticket import TicketCreate, TicketUpdate
+from app.schemas.assignment import TicketAssignment
 from app.services.ticket_service import (
     get_all_tickets,
     create_ticket,
@@ -12,7 +13,9 @@ from app.services.ticket_service import (
     delete_ticket_by_id,
     get_dashboard_stats,
     filter_tickets,
-    get_latest_tickets
+    get_latest_tickets,
+    assign_ticket,
+    get_ticket_history
 )
 
 from app.core.auth import get_current_user
@@ -21,10 +24,13 @@ from app.exceptions import ticket_not_found
 from app.models.user import User
 from app.schemas.ticket_response import TicketResponse
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/tickets",
+    tags=["Tickets"]
+)
 
 
-@router.get("/tickets", response_model=list[TicketResponse])
+@router.get("", response_model=list[TicketResponse])
 def get_tickets(
     offset: int = 0,
     limit: int = 20,
@@ -38,7 +44,7 @@ def get_tickets(
     )
 
 
-@router.get("/tickets/search")
+@router.get("/search")
 def search_ticket_endpoint(
     search: str,
     session: Session = Depends(get_session),
@@ -47,16 +53,16 @@ def search_ticket_endpoint(
     return search_tickets(session, search)
 
 
-@router.post("/tickets", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 def create_ticket_endpoint(
     ticket: TicketCreate,
     session: Session = Depends(get_session),
     current_user: User = Depends(require_agent_or_admin)
 ):
-    return create_ticket(session, ticket)
+    return create_ticket(session, ticket, current_user.username)
 
 
-@router.put("/tickets/{ticket_id}")
+@router.put("/{ticket_id}")
 def update_ticket(
     ticket_id: int,
     ticket: TicketUpdate,
@@ -66,7 +72,8 @@ def update_ticket(
     updated_ticket = update_ticket_status(
         session,
         ticket_id,
-        ticket
+        ticket,
+        current_user.username
     )
 
     if updated_ticket is None:
@@ -78,7 +85,7 @@ def update_ticket(
     }
 
 
-@router.delete("/tickets/{ticket_id}")
+@router.delete("/{ticket_id}")
 def delete_ticket_endpoint(
     ticket_id: int,
     session: Session = Depends(get_session),
@@ -86,7 +93,8 @@ def delete_ticket_endpoint(
 ):
     deleted_ticket = delete_ticket_by_id(
         session,
-        ticket_id
+        ticket_id,
+        current_user.username
     )
 
     if deleted_ticket is None:
@@ -106,7 +114,7 @@ def dashboard(
     return get_dashboard_stats(session)
 
 
-@router.get("/tickets/filter")
+@router.get("/filter")
 def filter_tickets_endpoint(
     status: str | None = None,
     priority: str | None = None,
@@ -122,7 +130,7 @@ def filter_tickets_endpoint(
     )
 
 
-@router.get("/tickets/latest")
+@router.get("/latest")
 def latest_tickets(
     limit: int = 5,
     session: Session = Depends(get_session),
@@ -131,4 +139,39 @@ def latest_tickets(
     return get_latest_tickets(
         session,
         limit
+    )
+
+@router.patch("/{ticket_id}/assign")
+def assign_ticket_endpoint(
+    ticket_id: int,
+    assignment: TicketAssignment,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(require_admin)
+):
+
+    ticket = assign_ticket(
+        session,
+        ticket_id,
+        assignment.assigned_to_id,
+        current_user.username
+    )
+
+    if ticket is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Ticket not found."
+        )
+
+    return ticket
+
+@router.get("/{ticket_id}/history")
+def ticket_history(
+    ticket_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(require_agent_or_admin)
+):
+
+    return get_ticket_history(
+        session,
+        ticket_id
     )

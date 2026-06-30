@@ -1,5 +1,7 @@
 from sqlmodel import SQLModel, Session, create_engine
 
+from app.models.ticket_history import TicketHistory
+
 DATABASE_URL = "sqlite:///ticketflow.db"
 
 engine = create_engine(

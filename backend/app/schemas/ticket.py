@@ -11,8 +11,11 @@ class TicketCreate(BaseModel):
     priority: Priority = Priority.MEDIUM
     status: TicketStatus = TicketStatus.OPEN
 
+    assigned_to_id: int | None = None
 
 class TicketUpdate(BaseModel):
     status: TicketStatus | None = None
     priority: Priority | None = None
     category: Category | None = None
+
+    assigned_to_id: int | None = None
