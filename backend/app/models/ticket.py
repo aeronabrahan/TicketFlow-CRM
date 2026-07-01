@@ -17,6 +17,7 @@ class Ticket(SQLModel, table=True):
     )
     customer: str
     subject: str
+    description: str = ""
     category: Category = Category.OTHER
     priority: Priority = Priority.MEDIUM
     status: TicketStatus = TicketStatus.OPEN

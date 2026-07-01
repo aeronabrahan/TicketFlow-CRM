@@ -18,6 +18,7 @@ def get_all_tickets(
 ):
     statement = (
         select(Ticket)
+        .order_by(desc(Ticket.created_at))
         .offset(offset)
         .limit(limit)
     )
@@ -48,6 +49,7 @@ def create_ticket(
     db_ticket = Ticket(
         customer=ticket.customer,
         subject=ticket.subject,
+        description=ticket.description,
         category=ticket.category.value,
         priority=ticket.priority.value,
         status=ticket.status.value,
@@ -92,6 +94,12 @@ def update_ticket_status(
 
     if not ticket:
         raise ticket_not_found()
+    
+    if ticket_update.subject is not None:
+        ticket.subject = ticket_update.subject
+
+    if ticket_update.description is not None:
+        ticket.description = ticket_update.description
 
     if ticket_update.status:
         

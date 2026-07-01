@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import MainLayout from "../components/layout/MainLayout";
 import TicketTable from "../components/tickets/TicketTable";
+import CreateTicketModal from "../components/tickets/CreateTicketModal";
 
 import { getTickets } from "../services/tickets";
 
@@ -12,6 +13,8 @@ export default function Tickets() {
     const [tickets, setTickets] = useState<Ticket[]>([]);
 
     const [search, setSearch] = useState("");
+
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     useEffect(() => {
 
@@ -57,10 +60,13 @@ export default function Tickets() {
 
                 </div>
 
-                <button className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700">
+                <button
 
+                    onClick={() => setShowCreateModal(true)}
+                    className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700"
+                >
                     + New Ticket
-
+                
                 </button>
 
             </div>
@@ -84,6 +90,12 @@ export default function Tickets() {
             </div>
 
             <TicketTable tickets={filteredTickets} />
+
+            <CreateTicketModal
+                isOpen={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+                onSuccess={loadTickets}
+            />
 
         </MainLayout>
 

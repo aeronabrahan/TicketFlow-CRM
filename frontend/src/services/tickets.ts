@@ -1,5 +1,10 @@
 import api from "./api";
 
+import type {
+    CreateTicketRequest,
+    UpdateTicketRequest,
+} from "../types/ticket";
+
 export async function getTickets() {
 
     const response = await api.get("/tickets");
@@ -16,7 +21,9 @@ export async function getLatestTickets() {
 
 }
 
-export async function createTicket(ticket: any) {
+export async function createTicket(
+    ticket: CreateTicketRequest
+) {
 
     const response = await api.post(
         "/tickets",
@@ -29,7 +36,7 @@ export async function createTicket(ticket: any) {
 
 export async function updateTicket(
     id: number,
-    ticket: any
+    ticket: UpdateTicketRequest
 ) {
 
     const response = await api.put(
