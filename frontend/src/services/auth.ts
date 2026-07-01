@@ -1,20 +1,19 @@
 import api from "./api";
 
-interface LoginData {
+interface LoginRequest {
     username: string;
     password: string;
 }
 
-export async function login(data: LoginData) {
+export async function login(credentials: LoginRequest) {
+    const formData = new URLSearchParams();
 
-    const form = new URLSearchParams();
-
-    form.append("username", data.username);
-    form.append("password", data.password);
+    formData.append("username", credentials.username);
+    formData.append("password", credentials.password);
 
     const response = await api.post(
         "/auth/login",
-        form,
+        formData,
         {
             headers: {
                 "Content-Type":
@@ -22,6 +21,12 @@ export async function login(data: LoginData) {
             },
         }
     );
+
+    return response.data;
+}
+
+export async function getCurrentUser() {
+    const response = await api.get("/auth/me");
 
     return response.data;
 }

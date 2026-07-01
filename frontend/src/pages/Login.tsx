@@ -24,9 +24,10 @@ function Login() {
                 password,
             });
 
-            saveToken(data.access_token);
+            await saveToken(data.access_token);
 
             navigate("/dashboard");
+            
         } catch (error: any) {
 
             console.log(error);

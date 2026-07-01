@@ -1,34 +1,51 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import type { CreateTicketRequest } from "../../types/ticket";
+
+import type {
+    CreateTicketRequest,
+    UpdateTicketRequest,
+} from "../../types/ticket";
+
+type TicketFormData = CreateTicketRequest & {
+    status?: string;
+};
 
 interface TicketFormProps {
-    defaultValues?: CreateTicketRequest;
+    defaultValues?: TicketFormData;
     loading?: boolean;
     submitText?: string;
-    onSubmit: (data: CreateTicketRequest) => void;
+    showStatus?: boolean;
+    onSubmit: (data: TicketFormData) => void;
 }
 
-const emptyForm: CreateTicketRequest = {
+const emptyForm: TicketFormData = {
     customer: "",
     subject: "",
     description: "",
     category: "Other",
     priority: "Medium",
+    status: "Open",
 };
 
 export default function TicketForm({
     defaultValues = emptyForm,
     loading = false,
     submitText = "Save Ticket",
+    showStatus = false,
     onSubmit,
 }: TicketFormProps) {
 
     const {
         register,
         handleSubmit,
-    } = useForm<CreateTicketRequest>({
+        reset,
+    } = useForm<TicketFormData>({
         defaultValues,
     });
+
+    useEffect(() => {
+        reset(defaultValues);
+    }, [defaultValues, reset]);
 
     return (
         <form
@@ -36,28 +53,37 @@ export default function TicketForm({
             className="space-y-5"
         >
             <div>
+
                 <label className="mb-2 block text-sm font-medium">
                     Customer
                 </label>
 
                 <input
-                    {...register("customer", { required: true })}
+                    {...register("customer", {
+                        required: true,
+                    })}
                     className="w-full rounded-xl border border-slate-300 px-4 py-3"
                 />
+
             </div>
 
             <div>
+
                 <label className="mb-2 block text-sm font-medium">
                     Subject
                 </label>
 
                 <input
-                    {...register("subject", { required: true })}
+                    {...register("subject", {
+                        required: true,
+                    })}
                     className="w-full rounded-xl border border-slate-300 px-4 py-3"
                 />
+
             </div>
 
             <div>
+
                 <label className="mb-2 block text-sm font-medium">
                     Description
                 </label>
@@ -65,9 +91,10 @@ export default function TicketForm({
                 <textarea
                     rows={5}
                     {...register("description")}
-                    className="w-full rounded-xl border border-slate-300 px-4 py-3 resize-none"
+                    className="w-full resize-none rounded-xl border border-slate-300 px-4 py-3"
                     placeholder="Describe the customer's issue..."
                 />
+
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -112,6 +139,27 @@ export default function TicketForm({
                 </div>
 
             </div>
+
+            {showStatus && (
+
+                <div>
+
+                    <label className="mb-2 block text-sm font-medium">
+                        Status
+                    </label>
+
+                    <select
+                        {...register("status")}
+                        className="w-full rounded-xl border border-slate-300 px-4 py-3"
+                    >
+                        <option value="Open">Open</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+
+                </div>
+
+            )}
 
             <div className="flex justify-end">
 
