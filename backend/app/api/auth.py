@@ -13,13 +13,15 @@ from app.services.auth_service import (
 )
 
 from app.core.security import create_token
+from app.core.auth import get_current_user
+
+from app.models.user import User
 
 
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"]
 )
-
 
 
 @router.post("/register")
@@ -42,7 +44,7 @@ def login(
 
     db_user = authenticate_user(
         session,
-        form_data.username,   # This will contain the email
+        form_data.username,
         form_data.password
     )
 
@@ -61,4 +63,17 @@ def login(
     return {
         "access_token": token,
         "token_type": "bearer"
+    }
+
+
+@router.get("/me")
+def get_me(
+    current_user: User = Depends(get_current_user)
+):
+
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
+        "role": current_user.role,
     }

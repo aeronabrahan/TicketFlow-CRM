@@ -95,6 +95,9 @@ def update_ticket_status(
     if not ticket:
         raise ticket_not_found()
     
+    if ticket_update.customer is not None:
+        ticket.customer = ticket_update.customer
+
     if ticket_update.subject is not None:
         ticket.subject = ticket_update.subject
 
